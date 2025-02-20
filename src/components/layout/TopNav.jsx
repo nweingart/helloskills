@@ -1,11 +1,11 @@
 import { Box, IconButton, Avatar, Typography } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import NotificationMenu from '../ui/NotificationMenu';
+import { useAuth } from '../../context/AuthContext';
 
 const TopNav = () => {
-  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
     {
@@ -19,6 +19,8 @@ const TopNav = () => {
       profileImage: '/images/creators/sarah.jpg'
     }
   ]);
+
+  const { currentUser } = useAuth();
 
   const hasUnreadNotifications = notifications.some(n => n.unread);
 
@@ -34,41 +36,47 @@ const TopNav = () => {
     ));
   };
 
-  return (
-    <Box sx={{ 
-      px: 4,
-      py: 3.5,
-      display: 'flex', 
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      width: '100%',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-      position: 'sticky',
-      top: 0,
-      backgroundColor: '#404040',
-      zIndex: 1000,
-    }}>
-      {/* Brand */}
-      <Typography
-        variant="h6"
-        sx={{
-          fontWeight: 700,
-          color: '#F7B614',
-          fontFamily: '"Dancing Script", cursive',
-          fontSize: '1.8rem',
-          textTransform: 'lowercase',
-          letterSpacing: '0.01em',
-        }}
-      >
-        helloskills
-      </Typography>
+  const getInitials = (email) => {
+    if (!email) return '??';
+    // Get username part of email (before @)
+    const username = email.split('@')[0];
+    // Split by common separators (., _, -)
+    const parts = username.split(/[._-]/);
+    
+    if (parts.length >= 2) {
+      // If we have multiple parts, take first letter of first and last parts
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    } else {
+      // If single word, take first two letters
+      return (username.length > 1 ? username.slice(0, 2) : username + '?').toUpperCase();
+    }
+  };
 
-      {/* Right Side Icons */}
-      <Box sx={{ 
-        display: 'flex', 
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        gap: 2.5
-      }}>
+        px: 2,
+        py: 1.5,
+      }}
+    >
+      <Link to="/" style={{ textDecoration: 'none' }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontFamily: 'Bumbbled, cursive',
+            color: '#E5A913',
+            fontSize: 'clamp(1.5rem, 5vw, 2rem)',
+            textAlign: 'center'
+          }}
+        >
+          helloskills
+        </Typography>
+      </Link>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Box sx={{ position: 'relative' }}>
           <IconButton 
             onClick={handleNotificationClick}
@@ -107,17 +115,20 @@ const TopNav = () => {
           )}
         </Box>
         
-        <Avatar 
-          onClick={() => navigate('/profile')}
-          sx={{ 
-            width: 36,
-            height: 36,
-            cursor: 'pointer',
-            '&:hover': { 
-              opacity: 0.8 
-            }
-          }}
-        />
+        <Link to="/profile">
+          <Avatar
+            sx={{
+              bgcolor: '#F7B614',
+              color: 'black',
+              width: 32,
+              height: 32,
+              fontSize: '0.875rem',
+              fontWeight: 500
+            }}
+          >
+            {getInitials(currentUser?.email)}
+          </Avatar>
+        </Link>
       </Box>
 
       {/* Notification Menu */}

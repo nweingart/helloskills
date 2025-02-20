@@ -6,13 +6,93 @@ import { collection, doc, writeBatch } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { useAuth } from '../../context/AuthContext';
 
-const TOPICS = [
-  "Photography", "Videography", "Motion Design", "UI Design",
-  "Graphic Design", "3D Animation", "Music Production", "Sound Design",
-  "Voice Acting", "Dance", "Singing", "Cooking", "Baking",
-  "Mixology", "Fashion", "Makeup", "Hair Styling", "Writing",
-  "Storytelling", "Poetry"
-];
+const allCategories = {
+  creative: [
+    'Photography', 
+    'Digital Art', 
+    'Filmmaking', 
+    'Music Production', 
+    'Graphic Design'
+  ],
+  
+  tech: [
+    'Web Development', 
+    'Mobile Apps', 
+    'AI/Machine Learning', 
+    'Cybersecurity', 
+    'Game Development'
+  ],
+  
+  lifestyle: [
+    'Fitness', 
+    'Nutrition', 
+    'Mental Health', 
+    'Personal Development', 
+    'Mindfulness'
+  ],
+  
+  business: [
+    'Entrepreneurship', 
+    'Marketing', 
+    'E-commerce', 
+    'Personal Finance', 
+    'Investment'
+  ],
+  
+  education: [
+    'Language Learning', 
+    'Academic Skills', 
+    'Test Prep', 
+    'Career Development', 
+    'Teaching'
+  ],
+  
+  beauty: [
+    'Makeup Artistry', 
+    'Skincare', 
+    'Fashion Styling', 
+    'Hair Care', 
+    'Beauty Business'
+  ],
+  
+  gaming: [
+    'Esports', 
+    'Game Strategy', 
+    'Streaming', 
+    'Gaming Content', 
+    'Competitive Gaming'
+  ],
+  
+  history: [
+    'Ancient Civilizations', 
+    'Military History', 
+    'Art History', 
+    'World History', 
+    'Archaeological Discoveries'
+  ],
+  
+  podcasting: [
+    'Audio Production', 
+    'Podcast Marketing', 
+    'Interview Skills', 
+    'Storytelling', 
+    'Podcast Monetization'
+  ],
+  
+  strategyGames: [
+    'Chess', 
+    'Tournament Strategy', 
+    'Game Theory', 
+    'Mental Sports', 
+    'Strategic Thinking'
+  ]
+};
+
+// Convert the object into the format needed for the component
+const categories = Object.entries(allCategories).map(([key, values]) => ({
+  category: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
+  interests: values
+}));
 
 const InterestsSelect = () => {
   const navigate = useNavigate();
@@ -22,9 +102,9 @@ const InterestsSelect = () => {
   const [notification, setNotification] = useState(null);
 
   const filteredTopics = useMemo(() => {
-    if (!searchValue.trim()) return TOPICS;
+    if (!searchValue.trim()) return categories.map(c => c.interests).flat();
     const query = searchValue.toLowerCase().trim();
-    return TOPICS.filter(topic => 
+    return categories.map(c => c.interests).flat().filter(topic => 
       topic.toLowerCase().includes(query)
     );
   }, [searchValue]);
@@ -39,7 +119,7 @@ const InterestsSelect = () => {
       newSelected.add(interest);
       setSelectedTopics(newSelected);
       if (newSelected.size === 3) {
-        setNotification('Tap continue to find your skill gurus');
+        setNotification('Tap continue!');
       } else {
         setNotification(`Select ${3 - newSelected.size} more skills to continue`);
       }
@@ -88,17 +168,29 @@ const InterestsSelect = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       sx={{
-        minHeight: '-webkit-fill-available',
+        minHeight: '100dvh',
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
         background: `
+          linear-gradient(
+            180deg,
+            rgba(255, 240, 230, 0.1) 0%,
+            rgba(70, 65, 75, 0.2) 100%
+          ),
+          linear-gradient(
+            45deg,
+            rgba(255, 200, 150, 0.08) 0%,
+            rgba(60, 50, 60, 0.15) 100%
+          ),
           radial-gradient(
-            circle at center,
-            rgba(64, 64, 64, 1) 0%,
-            rgba(0, 0, 0, 1) 100%
+            circle at top right,
+            rgba(255, 190, 140, 0.1) 0%,
+            transparent 60%
           )
         `,
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         color: 'white',
         position: 'fixed',
         top: 0,
@@ -130,11 +222,10 @@ const InterestsSelect = () => {
               fontFamily: '"Gloria Hallelujah", cursive',
               fontSize: { xs: '1.5rem', sm: '1.75rem' },
               color: '#F7B614',
-              textAlign: 'center',
-              mt: { xs: '1rem', sm: '1.5rem' }
+              textAlign: 'center'
             }}
           >
-            What skill set are you looking for?
+            Select Three Skills
           </Typography>
 
           {/* Interests List */}
@@ -222,29 +313,43 @@ const InterestsSelect = () => {
 
         {/* Continue Button */}
         {selectedTopics.size === 3 && (
-          <Box
-            onClick={handleButtonClick}
-            sx={{
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{
               position: 'fixed',
-              bottom: { xs: '2rem', sm: '3rem' },
-              left: '50%',
-              transform: 'translateX(-50%)',
-              bgcolor: '#F7B614',
-              color: 'black',
-              py: { xs: '0.75rem', sm: '1rem' },
-              px: { xs: '2rem', sm: '2.5rem' },
-              borderRadius: '2rem',
-              cursor: 'pointer',
-              fontWeight: 500,
-              fontSize: { xs: '0.875rem', sm: '1rem' },
-              zIndex: 10,
-              '&:hover': {
-                bgcolor: '#e5a913'
-              }
+              bottom: '20%',
+              left: 0,
+              right: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              zIndex: 1000
             }}
           >
-            Continue
-          </Box>
+            <Box
+              onClick={handleButtonClick}
+              sx={{
+                bgcolor: 'rgba(0, 0, 0, 0.8)',
+                color: 'white',
+                px: 3,
+                py: 1.5,
+                borderRadius: '2rem',
+                cursor: 'pointer',
+                backdropFilter: 'blur(4px)',
+                WebkitBackdropFilter: 'blur(4px)',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  bgcolor: 'rgba(0, 0, 0, 0.9)',
+                  transform: 'scale(1.05)'
+                }
+              }}
+            >
+              <Typography>
+                Continue
+              </Typography>
+            </Box>
+          </motion.div>
         )}
       </Box>
 

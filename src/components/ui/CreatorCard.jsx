@@ -1,105 +1,124 @@
-import { Box, Typography, Avatar } from '@mui/material';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import { FaTiktok } from 'react-icons/fa';
+import { Box, Typography } from '@mui/material';
 import PropTypes from 'prop-types';
-import StarIcon from '@mui/icons-material/Star';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import { FaTiktok } from 'react-icons/fa';
 
 const CreatorCard = ({ creator }) => {
-  const { name, avatar, category, rating, socials } = creator;
-  
+  console.log('Creator data received:', creator);
+  console.log('Avatar URL:', creator.avatar);
+
+  const getSocialIcon = (platform) => {
+    switch (platform.toLowerCase()) {
+      case 'instagram':
+        return <InstagramIcon sx={{ fontSize: '1.2rem' }} />;
+      case 'youtube':
+        return <YouTubeIcon sx={{ fontSize: '1.2rem' }} />;
+      case 'tiktok':
+        return <FaTiktok size="1.1rem" />;
+      case 'x':
+      case 'twitter':
+        return <TwitterIcon sx={{ fontSize: '1.2rem' }} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box
       sx={{
-        width: 160,
-        height: 220,
-        flexShrink: 0,
-        borderRadius: 2,
+        minWidth: '280px',
+        borderRadius: '16px',
         overflow: 'hidden',
         position: 'relative',
-        bgcolor: 'rgba(255,255,255,0.05)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: 2,
-        cursor: 'pointer',
-        transition: 'all 0.2s ease-in-out',
-        '&:hover': {
-          bgcolor: 'rgba(255,255,255,0.08)',
-        }
+        bgcolor: 'rgba(0, 0, 0, 0.3)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        p: 2
       }}
     >
-      <Avatar 
-        src={avatar} 
-        alt={name}
-        sx={{ 
-          width: 80, 
-          height: 80,
-          mb: 2,
-          border: '2px solid rgba(255,255,255,0.1)'
-        }}
-      />
-      
-      <Typography
-        sx={{
-          color: 'white',
-          fontSize: '0.9rem',
-          fontWeight: 500,
-          textAlign: 'center',
-          mb: 1
-        }}
-      >
-        {name}
-      </Typography>
-
-      <Typography
-        sx={{
-          color: 'rgba(255,255,255,0.6)',
-          fontSize: '0.8rem',
-          mb: 1
-        }}
-      >
-        #{category}
-      </Typography>
-
-      {socials && socials[0] && (
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: 1,
-          mb: 1
-        }}>
-          {socials[0].platform === 'instagram' ? (
-            <InstagramIcon sx={{ color: 'white', fontSize: 16 }} />
-          ) : (
-            <FaTiktok style={{ color: 'white', fontSize: 14 }} />
-          )}
-          <Typography
-            sx={{
-              color: 'rgba(255,255,255,0.6)',
-              fontSize: '0.75rem'
+      {/* Profile Section */}
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+        <Box
+          component="img"
+          src={creator.avatar}
+          alt={creator.name}
+          sx={{
+            width: 48,
+            height: 48,
+            borderRadius: '50%',
+            border: '2px solid #F7B614',
+            mr: 1.5
+          }}
+        />
+        <Box>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'white' }}>
+            {creator.name}
+          </Typography>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 0.5,
+              color: '#F7B614' 
             }}
           >
-            {socials[0].handle}
+            ★ {creator.rating}
           </Typography>
+        </Box>
+      </Box>
+
+      {/* Categories/Hashtags */}
+      {creator.categories && (
+        <Box sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 1,
+          mb: 1.5
+        }}>
+          {creator.categories.map((category, index) => (
+            <Typography
+              key={index}
+              sx={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: '0.75rem',
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                px: 1,
+                py: 0.5,
+                borderRadius: '12px',
+              }}
+            >
+              #{category}
+            </Typography>
+          ))}
         </Box>
       )}
 
-      {rating && (
+      {/* Social Links */}
+      {creator.socials && (
         <Box sx={{ 
           display: 'flex', 
-          alignItems: 'center', 
-          gap: 0.5,
-          mt: 'auto'
+          gap: 2,
+          color: 'rgba(255, 255, 255, 0.7)'
         }}>
-          <StarIcon sx={{ color: '#F7B614', fontSize: '1rem' }} />
-          <Typography
-            sx={{
-              color: 'white',
-              fontSize: '0.8rem'
-            }}
-          >
-            {rating}
-          </Typography>
+          {creator.socials.map((social, index) => (
+            <Box 
+              key={index}
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                gap: 0.5
+              }}
+            >
+              {getSocialIcon(social.platform)}
+              <Typography sx={{ fontSize: '0.75rem' }}>
+                {social.handle}
+              </Typography>
+            </Box>
+          ))}
         </Box>
       )}
     </Box>
@@ -108,16 +127,15 @@ const CreatorCard = ({ creator }) => {
 
 CreatorCard.propTypes = {
   creator: PropTypes.shape({
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     avatar: PropTypes.string.isRequired,
-    category: PropTypes.string.isRequired,
-    rating: PropTypes.string,
-    socials: PropTypes.arrayOf(
-      PropTypes.shape({
-        platform: PropTypes.oneOf(['instagram', 'tiktok']).isRequired,
-        handle: PropTypes.string.isRequired
-      })
-    )
+    rating: PropTypes.string.isRequired,
+    categories: PropTypes.arrayOf(PropTypes.string),
+    socials: PropTypes.arrayOf(PropTypes.shape({
+      platform: PropTypes.oneOf(['instagram', 'youtube', 'tiktok', 'x', 'twitter']).isRequired,
+      handle: PropTypes.string.isRequired
+    }))
   }).isRequired
 };
 

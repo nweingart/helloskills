@@ -205,7 +205,7 @@ const IntroScreen = () => {
               fontWeight: 300,
               letterSpacing: '0.5px'
             }}>
-              Skills Gurus
+              See Gurus
             </Typography>
           </Box>
         </Box>
